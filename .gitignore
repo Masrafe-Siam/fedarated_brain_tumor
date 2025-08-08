@@ -1,4 +1,10 @@
 .env
-Dataset/
+Dataset_1/
+Dataset_2/
 Trained_model/
 Test_Result/
+test
+client_1/dataset_1
+client_2/dataset_2
+client_3/dataset_3
+client_4/dataset_4

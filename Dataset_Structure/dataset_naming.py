@@ -1,7 +1,7 @@
 import os
 
 # Set your folder path
-folder_path = r'D:\Masrafe\Coding\Git_Hub_code\ml_project\fedarated_brain_tumor\Dataset\Validation\pituitary_tumor'
+folder_path = r'D:\Masrafe\Coding\Git_Hub_code\ml_project\fedarated_brain_tumor\Dataset_2\Validation\pituitary_tumor'
 
 # Base name
 base_name = "pituitary_tumor_validation"
