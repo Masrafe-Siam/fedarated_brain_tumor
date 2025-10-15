@@ -8,3 +8,17 @@ client_1/dataset_1
 client_2/dataset_2
 client_3/dataset_3
 client_4/dataset_4
+venv/
+GarbageCollection/
+__pycache__/
+
+
+models/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+migrations/
+Result/
+predicted_outputs/
+DataSet/
