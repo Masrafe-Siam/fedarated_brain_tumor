@@ -1,10 +1,14 @@
 import os
 
-# Set your folder path
-folder_path = r'D:\Masrafe\Coding\Git_Hub_code\ml_project\fedarated_brain_tumor\Dataset_2\Validation\pituitary_tumor'
-
-# Base name
-base_name = "pituitary_tumor_validation"
+# Set your folder path # Base name for renaming
+#folder_path = r'D:\Masrafe\Coding\Git_Hub_code\ml_project\fedarated_brain_tumor\Dataset_1\glioma_tumor'
+#base_name = "glioma_tumor"
+#folder_path = r'D:\Masrafe\Coding\Git_Hub_code\ml_project\fedarated_brain_tumor\Dataset_1\meningioma_tumor'
+#base_name = "meningioma_tumor"
+#folder_path = r'D:\Masrafe\Coding\Git_Hub_code\ml_project\fedarated_brain_tumor\Dataset_1\no_tumor'
+#base_name = "no_tumor"
+#folder_path = r'D:\Masrafe\Coding\Git_Hub_code\ml_project\fedarated_brain_tumor\Dataset_1\pituitary_tumor'
+#base_name = "pituitary_tumor"
 
 # Image file extensions to look for
 image_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff']
