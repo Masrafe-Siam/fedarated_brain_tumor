@@ -11,7 +11,7 @@ class HybridSwinDenseNetMLP(nn.Module):
     """
     def __init__(
         self,
-        num_classes: int = 3,
+        num_classes: int = 4,
         pretrained: bool = True,
         swin_name: str = "swin_tiny_patch4_window7_224",
         dropout: float = 0.3,

@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 class CustomCNN(nn.Module):
-    def __init__(self, num_classes: int = 3):
+    def __init__(self, num_classes: int = 4):
         super(CustomCNN, self).__init__()
 
         self.features = nn.Sequential(

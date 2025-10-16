@@ -7,7 +7,7 @@ class MobileNetV3(nn.Module):
     MobileNetV3 model for Federated Learning, useful for resource-constrained devices
     like mobile phones and IoT devices.
     """
-    def __init__(self, num_classes: int = 3, pretrained: bool = True, dropout_rate: float = 0.5):
+    def __init__(self, num_classes: int = 4, pretrained: bool = True, dropout_rate: float = 0.5):
         super(MobileNetV3, self).__init__()
 
         self.backbone = models.mobilenet_v3_large(pretrained=pretrained)

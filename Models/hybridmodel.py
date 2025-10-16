@@ -11,7 +11,7 @@ class HybridViTCNNMLP(nn.Module):
     """
     def __init__(
         self,
-        num_classes: int = 3,
+        num_classes: int = 4,
         pretrained: bool = True,
         vit_name: str = "vit_base_patch16_224",
         dropout_rate: float = 0.3,

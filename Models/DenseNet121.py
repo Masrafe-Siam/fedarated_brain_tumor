@@ -7,7 +7,7 @@ class DenseNet121Medical(nn.Module):
     DenseNet121 model for medical image classification using ImageNet pretrained weights.
     Converts first convolution to accept 1-channel input by averaging pretrained weights.
     """
-    def __init__(self, num_classes: int = 3, pretrained: bool = True, dropout_rate: float = 0.5, dataset: str = "chexpert"):
+    def __init__(self, num_classes: int = 4, pretrained: bool = True, dropout_rate: float = 0.5, dataset: str = "chexpert"):
         super(DenseNet121Medical, self).__init__()
 
         if pretrained:
