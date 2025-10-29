@@ -1,14 +1,14 @@
 import os
 
 # Set your folder path # Base name for renaming
-#folder_path = r'D:\Masrafe\Coding\Git_Hub_code\ml_project\fedarated_brain_tumor\Dataset_1\glioma_tumor'
-#base_name = "glioma_tumor"
-#folder_path = r'D:\Masrafe\Coding\Git_Hub_code\ml_project\fedarated_brain_tumor\Dataset_1\meningioma_tumor'
-#base_name = "meningioma_tumor"
-#folder_path = r'D:\Masrafe\Coding\Git_Hub_code\ml_project\fedarated_brain_tumor\Dataset_1\no_tumor'
-#base_name = "no_tumor"
-#folder_path = r'D:\Masrafe\Coding\Git_Hub_code\ml_project\fedarated_brain_tumor\Dataset_1\pituitary_tumor'
-#base_name = "pituitary_tumor"
+#folder_path = r'D:\Masrafe\Coding\Git_Hub_code\ml_project\fedarated_brain_tumor\DataSet\client_4\dataset_4\glioma_tumor'
+#base_name = "glioma_tumor_client_4"
+#folder_path = r'D:\Masrafe\Coding\Git_Hub_code\ml_project\fedarated_brain_tumor\DataSet\client_4\dataset_4\meningioma_tumor'
+#base_name = "meningioma_tumor_client_4"
+#folder_path = r'D:\Masrafe\Coding\Git_Hub_code\ml_project\fedarated_brain_tumor\DataSet\client_4\dataset_4\no_tumor'
+#base_name = "no_tumor_client_4"
+#folder_path = r'D:\Masrafe\Coding\Git_Hub_code\ml_project\fedarated_brain_tumor\DataSet\client_4\dataset_4\pituitary_tumor'
+#base_name = "pituitary_tumor_client_4"
 
 # Image file extensions to look for
 image_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff']
