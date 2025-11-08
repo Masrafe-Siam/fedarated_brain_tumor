@@ -960,7 +960,7 @@ def main():
     parser.add_argument("--data-dir", type=str, required=True, help="Path to client data directory")
     parser.add_argument("--server-address", type=str, default="localhost:8080", help="FL server address")
     parser.add_argument("--model", type=str, default="customcnn",
-                        choices=["mobilenetv3", "hybridmodel", "resnet50", "customcnn", "hybridswin", "densenet121", "shufflenetv2", "squeezenet11"],
+                        choices=["mobilenetv3", "hybridmodel", "resnet50", "customcnn", "hybridswin", "densenet121", "shufflenetv2", "squeezenet11", "regnety400"],
                         help="Model architecture")
     parser.add_argument("--train-local", action="store_true", help="Run local training only (no FL server)")
     args = parser.parse_args()
