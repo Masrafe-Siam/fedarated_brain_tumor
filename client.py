@@ -649,7 +649,7 @@ class MedicalFLClient(fl.client.NumPyClient):
         device: torch.device,
         model_name: str = "customcnn", 
         num_classes: int = 4,
-        batch_size: int = 32, 
+        batch_size: int = 8, 
         local_epochs: int = 8,
         results_base_dir: str = RESULTS_BASE_DIR,
     ):

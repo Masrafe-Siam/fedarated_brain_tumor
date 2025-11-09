@@ -244,28 +244,60 @@ class MedicalFLStrategy(fl.server.strategy.FedAvg):
 
         eval_ins = fl.common.EvaluateIns(parameters, config)
         return [(c, eval_ins) for c in clients]
-    
     def aggregate_fit(
         self,
         server_round: int,
         results: List[Tuple[fl.server.client_proxy.ClientProxy, fl.common.FitRes]],
         failures: List[Union[Tuple[fl.server.client_proxy.ClientProxy, fl.common.FitRes], BaseException]],
-
     ) -> Tuple[Optional[fl.common.Parameters], Dict[str, fl.common.Scalar]]:
+        
         t0 = time.time()
         logger.info(f"Round {server_round}: aggregating fit results "
                     f"(success={len(results)}, failures={len(failures)})")
         
-        if len(results) < self.min_fit_clients:
+        # --- MODIFICATION START ---
+        
+        # 1. Handle failures (same logic as parent FedAvg)
+        if not self.accept_failures and failures:
+            logger.error(f"Round {server_round}: Failures detected and accept_failures=False. Stopping.")
+            return None, {}
+
+        # 2. NEW CHECK: Aggregate if AT LEAST ONE client succeeds
+        if not results: # This is the same as 'if len(results) == 0:'
             logger.warning(
-                f"Not enough results to aggregate. "
-                f"Expected {self.min_fit_clients}, got {len(results)}"
+                f"Round {server_round}: No successful results received. "
+                f"Skipping aggregation for this round."
             )
             return None, {}
         
-        aggregated_parameters, aggregated_metrics = super().aggregate_fit(server_round, results, failures)
+        # 3. (Optional) Log a warning if we received fewer than the minimum
+        elif len(results) < self.min_fit_clients:
+            logger.warning(
+                f"Round {server_round}: Received results from {len(results)} clients, "
+                f"which is less than the configured min_fit_clients ({self.min_fit_clients}). "
+                f"Proceeding with aggregation..."
+            )
+
+        # 4. Aggregate parameters (bypassing the super().aggregate_fit check)
+        # This calls the underlying 'aggregate' (weighted averaging) function
+        aggregated_parameters = self.aggregate(results)
         if aggregated_parameters is None:
-            return None, aggregated_metrics
+            logger.warning(f"Round {server_round}: Parameter aggregation failed (self.aggregate returned None).")
+            return None, {}
+
+        # 5. Aggregate custom metrics (bypassing the super().aggregate_fit check)
+        aggregated_metrics = {}
+        if self.fit_metrics_aggregation_fn:
+            # Get metrics from all successful clients
+            fit_metrics = [(res.num_examples, res.metrics) for _, res in results if res.metrics]
+            if fit_metrics:
+                # This calls your 'weighted_average' function
+                aggregated_metrics = self.fit_metrics_aggregation_fn(fit_metrics)
+        
+        # --- MODIFICATION END ---
+
+
+        # (The rest of your function remains exactly the same)
         
         # Hold onto last aggregated params
         self.last_parameters = aggregated_parameters
@@ -312,7 +344,77 @@ class MedicalFLStrategy(fl.server.strategy.FedAvg):
         # Periodic snapshot
         if server_round % 10 == 0:
             self.save_intermediate_results(server_round)
+            
         return aggregated_parameters, aggregated_metrics
+    
+    # def aggregate_fit(
+    #     self,
+    #     server_round: int,
+    #     results: List[Tuple[fl.server.client_proxy.ClientProxy, fl.common.FitRes]],
+    #     failures: List[Union[Tuple[fl.server.client_proxy.ClientProxy, fl.common.FitRes], BaseException]],
+
+    # ) -> Tuple[Optional[fl.common.Parameters], Dict[str, fl.common.Scalar]]:
+    #     t0 = time.time()
+    #     logger.info(f"Round {server_round}: aggregating fit results "
+    #                 f"(success={len(results)}, failures={len(failures)})")
+        
+    #     if len(results) < self.min_fit_clients:
+    #         logger.warning(
+    #             f"Not enough results to aggregate. "
+    #             f"Expected {self.min_fit_clients}, got {len(results)}"
+    #         )
+    #         return None, {}
+        
+    #     aggregated_parameters, aggregated_metrics = super().aggregate_fit(server_round, results, failures)
+    #     if aggregated_parameters is None:
+    #         return None, aggregated_metrics
+        
+    #     # Hold onto last aggregated params
+    #     self.last_parameters = aggregated_parameters
+
+    #     # Summaries from client metrics
+    #     summary = self._calculate_fit_metrics(results)
+    #     self.history["round"].append(server_round)
+    #     self.history["train_loss"].append(summary["train_loss_avg"])
+    #     self.history["train_accuracy"].append(summary["train_accuracy_avg"])
+    #     self.history["train_f1"].append(summary["train_f1_avg"])
+    #     self.history["val_loss"].append(summary["val_loss_avg"])
+    #     self.history["val_accuracy"].append(summary["val_accuracy_avg"])
+    #     self.history["val_f1"].append(summary["val_f1_avg"])
+    #     self.history["num_clients"].append(len(results))
+    #     self.history["client_data_sizes"].append(summary["client_data_sizes"])
+    #     self.history["aggregation_time"].append(time.time() - t0)
+
+    #     # XAI history (only if keys exist in summary)
+    #     self.history["xai_del_auc_mean"].append(summary.get("xai_del_auc_mean_avg", np.nan))
+    #     self.history["xai_del_auc_std"].append(summary.get("xai_del_auc_std_avg", np.nan))
+    #     self.history["xai_heat_in_mask_mean"].append(summary.get("xai_heat_in_mask_mean_avg", np.nan))
+    #     self.history["xai_heat_in_mask_std"].append(summary.get("xai_heat_in_mask_std_avg", np.nan))
+
+
+    #     # Track best by validation F1
+    #     if summary["val_f1_avg"] > self.best_f1:
+    #         self.best_f1 = summary["val_f1_avg"]
+    #         self.best_accuracy = summary["val_accuracy_avg"]
+    #         self.best_round = server_round
+    #         self.best_parameters = aggregated_parameters
+    #         self.save_best_model()
+    #         logger.info(f"🏆 New best model: round={self.best_round}, "
+    #                     f"val_f1={self.best_f1:.4f}, val_acc={self.best_accuracy:.4f}")
+
+    #     # aggregated_metrics.update(summary)
+    #     aggregated_metrics.update({
+    #         k: v for k, v in summary.items()
+    #         if k.startswith("xai_")
+    #     })
+
+    #     aggregated_metrics["aggregation_time"] = self.history["aggregation_time"][-1]
+    #     self._log_round_summary(server_round, summary, len(results))
+
+    #     # Periodic snapshot
+    #     if server_round % 10 == 0:
+    #         self.save_intermediate_results(server_round)
+    #     return aggregated_parameters, aggregated_metrics
     
     def aggregate_evaluate(
         self,
@@ -666,7 +768,7 @@ class MedicalFLStrategy(fl.server.strategy.FedAvg):
         plt.savefig(out, dpi=300, bbox_inches="tight")
         plt.close()
         logger.info(f"Saved plot → {out}")
-        
+
     # def plot_training_curves(self, save_suffix: str = ""):
     #     if not self.history["round"]:
     #         return
