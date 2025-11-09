@@ -575,58 +575,149 @@ class MedicalFLStrategy(fl.server.strategy.FedAvg):
             logger.info(f"Final results saved in {self.results_base_dir}")
         except Exception as e:
             logger.error(f"Failed to save final results: {e}")
-
     def plot_training_curves(self, save_suffix: str = ""):
         if not self.history["round"]:
             return
         rounds = self.history["round"]
-        fig, axes = plt.subplots(2, 3, figsize=(18, 12))
+        
+        # --- Customize global plot settings (optional) ---
+        plt.style.use('seaborn-v0_8-darkgrid') # Try 'ggplot', 'fivethirtyeight', 'dark_background'
+        plt.rcParams.update({'font.size': 10}) # Adjust overall font size
+        
+        fig, axes = plt.subplots(2, 3, figsize=(20, 14)) # Slightly larger figure for better readability
 
-        # Loss
-        axes[0, 0].plot(rounds, self.history["train_loss"], label="Train Loss", linewidth=2, marker="o")
-        axes[0, 0].plot(rounds, self.history["val_loss"], label="Val Loss", linewidth=2, marker="s")
+        # --- ROW 1: Loss, Accuracy, F1-Score ---
+
+        # Loss Plot Customization
+        axes[0, 0].plot(rounds, self.history["train_loss"], label="Train Loss", color='blue', linestyle='-', marker="o", markersize=4)
+        axes[0, 0].plot(rounds, self.history["val_loss"], label="Validation Loss", color='red', linestyle='--', marker="s", markersize=4)
         if self.history["test_loss"]:
-            axes[0, 0].plot(rounds, self.history["test_loss"], label="Test Loss", linewidth=2, marker="^")
-        axes[0, 0].set_title("Loss")
+            axes[0, 0].plot(rounds, self.history["test_loss"], label="Test Loss", color='green', linestyle=':', marker="^", markersize=4)
+        axes[0, 0].set_title("Loss Across Rounds", fontsize=14)
+        axes[0, 0].set_xlabel("Federated Round", fontsize=12)
+        axes[0, 0].set_ylabel("Loss Value", fontsize=12)
+        axes[0, 0].legend(loc="upper right", fontsize=10)
 
-        # Acc
-        axes[0, 1].plot(rounds, self.history["train_accuracy"], label="Train Acc", linewidth=2, marker="o")
-        axes[0, 1].plot(rounds, self.history["val_accuracy"], label="Val Acc", linewidth=2, marker="s")
+
+        # Accuracy Plot Customization
+        axes[0, 1].plot(rounds, self.history["train_accuracy"], label="Train Accuracy", color='darkblue', linestyle='-', marker="o", markersize=4)
+        axes[0, 1].plot(rounds, self.history["val_accuracy"], label="Validation Accuracy", color='darkred', linestyle='--', marker="s", markersize=4)
         if self.history["test_accuracy"]:
-            axes[0, 1].plot(rounds, self.history["test_accuracy"], label="Test Acc", linewidth=2, marker="^")
-        axes[0, 1].set_title("Accuracy")
+            axes[0, 1].plot(rounds, self.history["test_accuracy"], label="Test Accuracy", color='darkgreen', linestyle=':', marker="^", markersize=4)
+        axes[0, 1].set_title("Accuracy Across Rounds", fontsize=14)
+        axes[0, 1].set_xlabel("Federated Round", fontsize=12)
+        axes[0, 1].set_ylabel("Accuracy (%)", fontsize=12)
+        axes[0, 1].legend(loc="lower right", fontsize=10)
+        axes[0, 1].set_ylim(0, 1) # Accuracy typically ranges from 0 to 1
 
-        # F1
-        axes[0, 2].plot(rounds, self.history["train_f1"], label="Train F1", linewidth=2, marker="o")
-        axes[0, 2].plot(rounds, self.history["val_f1"], label="Val F1", linewidth=2, marker="s")
+
+        # F1-Score Plot Customization
+        axes[0, 2].plot(rounds, self.history["train_f1"], label="Train F1-Score", color='purple', linestyle='-', marker="o", markersize=4)
+        axes[0, 2].plot(rounds, self.history["val_f1"], label="Validation F1-Score", color='orange', linestyle='--', marker="s", markersize=4)
         if self.history["test_f1"]:
-            axes[0, 2].plot(rounds, self.history["test_f1"], label="Test F1", linewidth=2, marker="^")
-        axes[0, 2].set_title("F1-Score")
+            axes[0, 2].plot(rounds, self.history["test_f1"], label="Test F1-Score", color='brown', linestyle=':', marker="^", markersize=4)
+        axes[0, 2].set_title("F1-Score Across Rounds", fontsize=14)
+        axes[0, 2].set_xlabel("Federated Round", fontsize=12)
+        axes[0, 2].set_ylabel("F1-Score Value", fontsize=12)
+        axes[0, 2].legend(loc="lower right", fontsize=10)
+        axes[0, 2].set_ylim(0, 1) # F1-Score typically ranges from 0 to 1
 
-        # Clients per round
-        axes[1, 0].bar(rounds, self.history["num_clients"], alpha=0.8)
-        axes[1, 0].set_title("Clients per Round")
+
+        # --- ROW 2: Clients per Round, Aggregation Time, Data Distribution ---
+
+        # Clients per round (Bar Chart)
+        axes[1, 0].bar(rounds, self.history["num_clients"], alpha=0.7, color='teal')
+        axes[1, 0].set_title("Number of Clients per Round", fontsize=14)
+        axes[1, 0].set_xlabel("Federated Round", fontsize=12)
+        axes[1, 0].set_ylabel("Number of Clients", fontsize=12)
+
 
         # Aggregation time
         if self.history["aggregation_time"]:
-            axes[1, 1].plot(rounds, self.history["aggregation_time"], linewidth=2, marker="d")
-            axes[1, 1].set_title("Aggregation Time (s)")
+            axes[1, 1].plot(rounds, self.history["aggregation_time"], color='darkgreen', linewidth=2, marker="d", markersize=4)
+            axes[1, 1].set_title("Aggregation Time (seconds)", fontsize=14)
+            axes[1, 1].set_xlabel("Federated Round", fontsize=12)
+            axes[1, 1].set_ylabel("Time (s)", fontsize=12)
+
 
         # Data distribution (latest round)
         if self.history["client_data_sizes"]:
-            latest = self.history["client_data_sizes"][-1]
-            labels = [f"C{i+1}" for i in range(len(latest))]
-            axes[1, 2].pie(latest, labels=labels, autopct="%1.1f%%", startangle=90)
-            axes[1, 2].set_title("Data Distribution (latest)")
+            latest_data_sizes = self.history["client_data_sizes"][-1]
+            labels = [f"Client {i+1}" for i in range(len(latest_data_sizes))]
+            
+            # You can define custom colors for the pie chart slices
+            pie_colors = plt.cm.Paired(np.linspace(0, 1, len(labels))) 
+            
+            axes[1, 2].pie(latest_data_sizes, labels=labels, autopct="%1.1f%%", startangle=90, colors=pie_colors,
+                            wedgeprops={'edgecolor': 'black', 'linewidth': 0.5}) # Add borders to slices
+            axes[1, 2].set_title("Data Distribution (Latest Round)", fontsize=14)
+            axes[1, 2].axis('equal') # Equal aspect ratio ensures that pie is drawn as a circle.
 
+
+        # --- General plot adjustments ---
         for ax in axes.ravel():
-            ax.grid(True, alpha=0.3)
-            ax.legend(loc="best")
-        plt.tight_layout()
+            ax.grid(True, linestyle=':', alpha=0.6) # Lighter grid lines
+            # No need for individual legend calls here if specified within each plot
+            
+        plt.suptitle(f"Federated Learning Training History for {self.model_name}", fontsize=18, y=1.02) # Overall title
+        plt.tight_layout(rect=[0, 0, 1, 0.98]) # Adjust layout to make space for suptitle
+        
         out = os.path.join(self.results_base_dir, f"training_curves{save_suffix}.png")
         plt.savefig(out, dpi=300, bbox_inches="tight")
         plt.close()
         logger.info(f"Saved plot → {out}")
+        
+    # def plot_training_curves(self, save_suffix: str = ""):
+    #     if not self.history["round"]:
+    #         return
+    #     rounds = self.history["round"]
+    #     fig, axes = plt.subplots(2, 3, figsize=(18, 12))
+
+    #     # Loss
+    #     axes[0, 0].plot(rounds, self.history["train_loss"], label="Train Loss", linewidth=2, marker="o")
+    #     axes[0, 0].plot(rounds, self.history["val_loss"], label="Val Loss", linewidth=2, marker="s")
+    #     if self.history["test_loss"]:
+    #         axes[0, 0].plot(rounds, self.history["test_loss"], label="Test Loss", linewidth=2, marker="^")
+    #     axes[0, 0].set_title("Loss")
+
+    #     # Acc
+    #     axes[0, 1].plot(rounds, self.history["train_accuracy"], label="Train Acc", linewidth=2, marker="o")
+    #     axes[0, 1].plot(rounds, self.history["val_accuracy"], label="Val Acc", linewidth=2, marker="s")
+    #     if self.history["test_accuracy"]:
+    #         axes[0, 1].plot(rounds, self.history["test_accuracy"], label="Test Acc", linewidth=2, marker="^")
+    #     axes[0, 1].set_title("Accuracy")
+
+    #     # F1
+    #     axes[0, 2].plot(rounds, self.history["train_f1"], label="Train F1", linewidth=2, marker="o")
+    #     axes[0, 2].plot(rounds, self.history["val_f1"], label="Val F1", linewidth=2, marker="s")
+    #     if self.history["test_f1"]:
+    #         axes[0, 2].plot(rounds, self.history["test_f1"], label="Test F1", linewidth=2, marker="^")
+    #     axes[0, 2].set_title("F1-Score")
+
+    #     # Clients per round
+    #     axes[1, 0].bar(rounds, self.history["num_clients"], alpha=0.8)
+    #     axes[1, 0].set_title("Clients per Round")
+
+    #     # Aggregation time
+    #     if self.history["aggregation_time"]:
+    #         axes[1, 1].plot(rounds, self.history["aggregation_time"], linewidth=2, marker="d")
+    #         axes[1, 1].set_title("Aggregation Time (s)")
+
+    #     # Data distribution (latest round)
+    #     if self.history["client_data_sizes"]:
+    #         latest = self.history["client_data_sizes"][-1]
+    #         labels = [f"C{i+1}" for i in range(len(latest))]
+    #         axes[1, 2].pie(latest, labels=labels, autopct="%1.1f%%", startangle=90)
+    #         axes[1, 2].set_title("Data Distribution (latest)")
+
+    #     for ax in axes.ravel():
+    #         ax.grid(True, alpha=0.3)
+    #         ax.legend(loc="best")
+    #     plt.tight_layout()
+    #     out = os.path.join(self.results_base_dir, f"training_curves{save_suffix}.png")
+    #     plt.savefig(out, dpi=300, bbox_inches="tight")
+    #     plt.close()
+    #     logger.info(f"Saved plot → {out}")
 
 
 def create_server_strategy(
