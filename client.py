@@ -1690,7 +1690,7 @@ def main():
     parser.add_argument("--data-dir", type=str, required=True, help="Path to client data directory")
     parser.add_argument("--server-address", type=str, default="localhost:8080", help="FL server address")
     parser.add_argument("--model", type=str, default="customcnn",
-                        choices=["mobilenetv3", "hybridmodel", "resnet50", "customcnn", "hybridswin", "densenet121", "shufflenetv2", "squeezenet11", "regnety400"],
+                        choices=["mobilenetv3", "resnet50", "customcnn",  "densenet121"],
                         help="Model architecture")
     parser.add_argument("--train-local", action="store_true", help="Run local training only (no FL server)")
     parser.add_argument("--batch-size", type=int, default=16, help="Batch size (CPU-only: 32 for ResNet/DenseNet, 64 for small CNN/EfficientNetB0)")

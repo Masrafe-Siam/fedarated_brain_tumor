@@ -4,13 +4,8 @@ import torch.nn.functional as F
 
 from models.resnet_model import ResNet50
 from models.cnn_model import CustomCNN
-from models.hybridmodel import HybridViTCNNMLP
 from models.mobilenetv3 import MobileNetV3
-from models.hybridSwinDenseNetMLP import HybridSwinDenseNetMLP
 from models.DenseNet121 import DenseNet121Medical
-from models.shufflenetv2 import ShuffleNetV2x10Med
-from models.squeezenet11 import SqueezeNet11Med
-from models.regnety400 import RegNetY400Med
 
 
 def get_model(model_name: str, num_classes: int, pretrained: bool = True, dropout_rate: float = 0.5):
@@ -19,20 +14,10 @@ def get_model(model_name: str, num_classes: int, pretrained: bool = True, dropou
         return ResNet50(num_classes=num_classes, pretrained=pretrained, dropout_rate=dropout_rate)
     elif model_name == 'customcnn':
         return CustomCNN(num_classes=num_classes)
-    elif model_name == 'hybridmodel':
-        return HybridViTCNNMLP(num_classes=num_classes, pretrained=pretrained, dropout_rate=dropout_rate)
     elif model_name == "mobilenetv3":
         return MobileNetV3(num_classes=num_classes, pretrained=pretrained, dropout_rate=dropout_rate)
-    elif model_name == "hybridswin":
-        return HybridSwinDenseNetMLP(num_classes=num_classes, pretrained=pretrained, dropout=dropout_rate)
     elif model_name == "densenet121":
         return DenseNet121Medical(num_classes=num_classes, pretrained=pretrained, dropout_rate=dropout_rate)
-    elif model_name == "shufflenetv2":
-        return ShuffleNetV2x10Med(num_classes=num_classes, pretrained=pretrained, dropout_rate=dropout_rate)
-    elif model_name == "squeezenet11":
-        return SqueezeNet11Med(num_classes=num_classes, pretrained=pretrained, dropout_rate=dropout_rate)
-    elif model_name == "regnety400":
-        return RegNetY400Med(num_classes=num_classes, pretrained=pretrained, dropout_rate=dropout_rate)
     else:
         raise ValueError(f"Model {model_name} is not supported.")
 
