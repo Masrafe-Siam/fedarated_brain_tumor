@@ -16,3 +16,4 @@ migrations/
 Result/
 predicted_outputs/
 DataSet/
+xai_out
